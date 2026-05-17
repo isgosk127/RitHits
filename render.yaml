@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: rithits-api
+    env: docker
+    region: ohio
+    plan: starter
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: REDIS_HOST
+        sync: false
+      - key: ELASTICSEARCH_NODE
+        sync: false
+    disk:
+      name: uploads-disk
+      mountPath: /app/uploads
+      sizeGB: 10

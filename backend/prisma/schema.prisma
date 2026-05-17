@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// USER & ARTIST
+// ============================================================
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
+  password     String
+  avatarUrl    String?
+  bannerUrl    String?
+  bio          String?
+  isArtist     Boolean  @default(false)
+  isVerified   Boolean  @default(false)
+  role         String   @default("USER") // USER | ADMIN
+  refreshToken String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  songs         Song[]
+  albums        Album[]
+  playlists     Playlist[]
+  history       History[]
+  likes         Like[]
+  following     Follow[]   @relation("follower")
+  followers     Follow[]   @relation("following")
+}
+
+// ============================================================
+// FOLLOW (User → User/Playlist)
+// ============================================================
+model Follow {
+  id          String   @id @default(uuid())
+  followerId  String
+  follower    User     @relation("follower", fields: [followerId], references: [id])
+  followingId String
+  following   User     @relation("following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([followerId, followingId])
+}
+
+// ============================================================
+// ALBUM
+// ============================================================
+model Album {
+  id          String   @id @default(uuid())
+  title       String
+  coverUrl    String?
+  description String?
+  genre       String   @default("Pop")
+  releaseYear Int      @default(2026)
+  isPublic    Boolean  @default(true)
+  playCount   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  artistId    String
+  artist      User     @relation(fields: [artistId], references: [id])
+
+  songs       Song[]
+  likes       Like[]
+}
+
+// ============================================================
+// SONG
+// ============================================================
+model Song {
+  id          String   @id @default(uuid())
+  title       String
+  audioUrl    String
+  duration    Int      @default(0)   // seconds
+  coverUrl    String?
+  genre       String   @default("Pop")
+  tags        String?                // comma-separated
+  lyrics      String?                // plain text or LRC format
+  hookStart   Int?                   // seconds — best part start
+  hookEnd     Int?                   // seconds — best part end
+  waveform    String?                // JSON array of amplitudes
+  playCount   Int      @default(0)
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  artistId    String
+  artist      User     @relation(fields: [artistId], references: [id])
+
+  albumId     String?
+  album       Album?   @relation(fields: [albumId], references: [id])
+
+  history       History[]
+  likes         Like[]
+  playlistSongs PlaylistSong[]
+}
+
+// ============================================================
+// PLAYLIST
+// ============================================================
+model Playlist {
+  id          String   @id @default(uuid())
+  name        String
+  description String?
+  coverUrl    String?
+  isPublic    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  songs       PlaylistSong[]
+  likes       Like[]
+}
+
+model PlaylistSong {
+  id         String   @id @default(uuid())
+  playlistId String
+  playlist   Playlist @relation(fields: [playlistId], references: [id], onDelete: Cascade)
+  songId     String
+  song       Song     @relation(fields: [songId], references: [id])
+  order      Int      @default(0)
+  addedAt    DateTime @default(now())
+
+  @@unique([playlistId, songId])
+}
+
+// ============================================================
+// HISTORY
+// ============================================================
+model History {
+  id           String   @id @default(uuid())
+  userId       String
+  user         User     @relation(fields: [userId], references: [id])
+  songId       String
+  song         Song     @relation(fields: [songId], references: [id])
+  playedAt     DateTime @default(now())
+  duration     Int      @default(0) // seconds actually listened
+  completed    Boolean  @default(false)
+}
+
+// ============================================================
+// LIKE (polymorphic via nullable FKs)
+// ============================================================
+model Like {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  likedAt    DateTime @default(now())
+
+  songId     String?
+  song       Song?     @relation(fields: [songId], references: [id])
+
+  albumId    String?
+  album      Album?    @relation(fields: [albumId], references: [id])
+
+  playlistId String?
+  playlist   Playlist? @relation(fields: [playlistId], references: [id])
+
+  @@unique([userId, songId])
+  @@unique([userId, albumId])
+  @@unique([userId, playlistId])
+}
