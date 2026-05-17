@@ -96,6 +96,10 @@ let LikesService = class LikesService {
         const like = await this.prisma.like.findUnique({ where: { userId_songId: { userId, songId } } });
         return !!like;
     }
+    async checkPlaylistLike(userId, playlistId) {
+        const like = await this.prisma.like.findUnique({ where: { userId_playlistId: { userId, playlistId } } });
+        return !!like;
+    }
     async getSongLikeCount(songId) {
         return this.prisma.like.count({ where: { songId } });
     }

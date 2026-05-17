@@ -97,4 +97,11 @@ export class SongsService {
       include: { artist: { select: { id: true, username: true } } },
     });
   }
+
+  async updateInternal(id: string, data: any) {
+    return (this.prisma as any).song.update({
+      where: { id },
+      data,
+    });
+  }
 }

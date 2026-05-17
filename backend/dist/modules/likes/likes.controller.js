@@ -40,7 +40,10 @@ let LikesController = class LikesController {
         return this.likesService.getLikedPlaylists(req.user.sub || req.user.id);
     }
     checkSong(songId, req) {
-        return this.likesService.checkSongLike(req.user.sub || req.user.id, songId).then(liked => ({ liked }));
+        return this.likesService.checkSongLike(req.user.userId || req.user.id, songId).then(liked => ({ liked }));
+    }
+    checkPlaylist(playlistId, req) {
+        return this.likesService.checkPlaylistLike(req.user.userId || req.user.id, playlistId).then(liked => ({ liked }));
     }
 };
 exports.LikesController = LikesController;
@@ -104,6 +107,15 @@ __decorate([
     __metadata("design:paramtypes", [String, Object]),
     __metadata("design:returntype", void 0)
 ], LikesController.prototype, "checkSong", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('check/playlists/:playlistId'),
+    __param(0, (0, common_1.Param)('playlistId')),
+    __param(1, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object]),
+    __metadata("design:returntype", void 0)
+], LikesController.prototype, "checkPlaylist", null);
 exports.LikesController = LikesController = __decorate([
     (0, common_1.Controller)('likes'),
     __metadata("design:paramtypes", [likes_service_1.LikesService])

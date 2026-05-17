@@ -71,7 +71,7 @@ let MediaProcessor = MediaProcessor_1 = class MediaProcessor extends bullmq_1.Wo
             const shortUrl = await this.streamingService.getHookClip(filePath, outputDir, songId);
             const waveformData = await this.streamingService.getWaveformData(filePath);
             const waveformJson = JSON.stringify(waveformData);
-            await this.songsService.update(songId, {
+            await this.songsService.updateInternal(songId, {
                 duration,
                 audioUrl: hlsPath,
                 waveform: waveformJson,

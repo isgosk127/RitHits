@@ -86,11 +86,29 @@ let SongsService = SongsService_1 = class SongsService {
     async remove(id) {
         return this.prisma.song.delete({ where: { id } });
     }
-    async update(id, data) {
+    async update(id, artistId, data) {
+        const song = await this.prisma.song.findUnique({ where: { id } });
+        if (!song)
+            throw new Error('Canción no encontrada');
+        if (song.artistId !== artistId)
+            throw new Error('No tienes permiso para editar esta canción');
+        return this.prisma.song.update({
+            where: { id },
+            data: {
+                title: data.title,
+                genre: data.genre,
+                lyrics: data.lyrics,
+                coverUrl: data.coverUrl,
+                albumId: data.albumId === "" ? null : data.albumId,
+                isPublic: data.isPublic !== undefined ? data.isPublic : song.isPublic,
+            },
+            include: { artist: { select: { id: true, username: true } } },
+        });
+    }
+    async updateInternal(id, data) {
         return this.prisma.song.update({
             where: { id },
             data,
-            include: { artist: { select: { id: true, username: true } } },
         });
     }
 };

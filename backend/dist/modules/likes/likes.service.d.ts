@@ -15,5 +15,6 @@ export declare class LikesService {
     getLikedAlbums(userId: string): Promise<any>;
     getLikedPlaylists(userId: string): Promise<any>;
     checkSongLike(userId: string, songId: string): Promise<boolean>;
+    checkPlaylistLike(userId: string, playlistId: string): Promise<boolean>;
     getSongLikeCount(songId: string): Promise<number>;
 }

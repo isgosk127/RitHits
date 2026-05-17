@@ -14,5 +14,6 @@ export declare class SongsController {
     findByArtist(artistId: string): Promise<any>;
     findOne(id: string): Promise<any>;
     findMine(req: any): Promise<any>;
+    update(id: string, body: any, req: any, cover?: Express.Multer.File): Promise<any>;
     remove(id: string): Promise<any>;
 }

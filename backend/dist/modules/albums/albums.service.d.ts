@@ -7,6 +7,7 @@ export declare class AlbumsService {
         description?: string;
         genre?: string;
         releaseYear?: number;
+        coverUrl?: string;
     }): Promise<any>;
     findAll(limit?: number, offset?: number): Promise<any>;
     findOne(id: string): Promise<any>;

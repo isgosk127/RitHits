@@ -91,6 +91,14 @@ let SongsController = SongsController_1 = class SongsController {
     findMine(req) {
         return this.songsService.findMy(req.user?.userId || req.user?.id);
     }
+    async update(id, body, req, cover) {
+        const artistId = req.user?.userId || req.user?.id;
+        const data = { ...body };
+        if (cover) {
+            data.coverUrl = `/uploads/covers/${cover.filename}`;
+        }
+        return this.songsService.update(id, artistId, data);
+    }
     remove(id) {
         return this.songsService.remove(id);
     }
@@ -158,6 +166,26 @@ __decorate([
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", void 0)
 ], SongsController.prototype, "findMine", null);
+__decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Put)(':id'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('cover', {
+        storage: (0, multer_1.diskStorage)({
+            destination: './uploads/covers',
+            filename: (req, file, cb) => {
+                const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+                cb(null, uniqueSuffix + (0, path_1.extname)(file.originalname));
+            },
+        }),
+    })),
+    __param(0, (0, common_1.Param)('id')),
+    __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.Request)()),
+    __param(3, (0, common_1.UploadedFile)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [String, Object, Object, Object]),
+    __metadata("design:returntype", Promise)
+], SongsController.prototype, "update", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Delete)(':id'),

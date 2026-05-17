@@ -92,6 +92,11 @@ let PlaylistsService = class PlaylistsService {
         const playlist = await this.prisma.playlist.findUnique({ where: { id: playlistId } });
         if (!playlist || playlist.userId !== userId)
             throw new common_1.ForbiddenException();
+        const existing = await this.prisma.playlistSong.findUnique({
+            where: { playlistId_songId: { playlistId, songId } },
+        });
+        if (existing)
+            return existing;
         const count = await this.prisma.playlistSong.count({ where: { playlistId } });
         return this.prisma.playlistSong.create({
             data: { playlistId, songId, order: count },

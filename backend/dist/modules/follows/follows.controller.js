@@ -14,76 +14,78 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.FollowsController = void 0;
 const common_1 = require("@nestjs/common");
-const follows_service_1 = require("./follows.service");
 const jwt_auth_guard_1 = require("../../auth/jwt-auth.guard");
+const prisma_service_1 = require("../../prisma.service");
 let FollowsController = class FollowsController {
-    followsService;
-    constructor(followsService) {
-        this.followsService = followsService;
+    prisma;
+    constructor(prisma) {
+        this.prisma = prisma;
     }
-    follow(targetId, req) {
+    async follow(id, req) {
         const followerId = req.user.userId;
-        return this.followsService.follow(followerId, targetId);
+        if (followerId === id)
+            throw new Error('No puedes seguirte a ti mismo');
+        return this.prisma.follow.create({
+            data: {
+                followerId,
+                followingId: id,
+            }
+        });
     }
-    unfollow(targetId, req) {
+    async unfollow(id, req) {
         const followerId = req.user.userId;
-        return this.followsService.unfollow(followerId, targetId);
+        return this.prisma.follow.delete({
+            where: {
+                followerId_followingId: {
+                    followerId,
+                    followingId: id,
+                }
+            }
+        });
     }
-    isFollowing(targetId, req) {
+    async check(id, req) {
         const followerId = req.user.userId;
-        return this.followsService.checkFollow(followerId, targetId);
-    }
-    getFollowers(userId) {
-        return this.followsService.getFollowers(userId);
-    }
-    getFollowing(userId) {
-        return this.followsService.getFollowing(userId);
+        const follow = await this.prisma.follow.findUnique({
+            where: {
+                followerId_followingId: {
+                    followerId,
+                    followingId: id,
+                }
+            }
+        });
+        return { following: !!follow };
     }
 };
 exports.FollowsController = FollowsController;
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Post)(':targetId'),
-    __param(0, (0, common_1.Param)('targetId')),
+    (0, common_1.Post)(':id'),
+    __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], FollowsController.prototype, "follow", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Delete)(':targetId'),
-    __param(0, (0, common_1.Param)('targetId')),
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Promise)
 ], FollowsController.prototype, "unfollow", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    (0, common_1.Get)('check/:targetId'),
-    __param(0, (0, common_1.Param)('targetId')),
+    (0, common_1.Get)('check/:id'),
+    __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String, Object]),
-    __metadata("design:returntype", void 0)
-], FollowsController.prototype, "isFollowing", null);
-__decorate([
-    (0, common_1.Get)(':userId/followers'),
-    __param(0, (0, common_1.Param)('userId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], FollowsController.prototype, "getFollowers", null);
-__decorate([
-    (0, common_1.Get)(':userId/following'),
-    __param(0, (0, common_1.Param)('userId')),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
-], FollowsController.prototype, "getFollowing", null);
+    __metadata("design:returntype", Promise)
+], FollowsController.prototype, "check", null);
 exports.FollowsController = FollowsController = __decorate([
     (0, common_1.Controller)('follows'),
-    __metadata("design:paramtypes", [follows_service_1.FollowsService])
+    __metadata("design:paramtypes", [prisma_service_1.PrismaService])
 ], FollowsController);
 //# sourceMappingURL=follows.controller.js.map

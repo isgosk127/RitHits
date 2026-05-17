@@ -10,5 +10,6 @@ export declare class SongsService {
     findByArtist(artistId: string): Promise<any>;
     getRanking(period?: 'week' | 'month' | 'all', limit?: number): Promise<any>;
     remove(id: string): Promise<any>;
-    update(id: string, data: any): Promise<any>;
+    update(id: string, artistId: string, data: any): Promise<any>;
+    updateInternal(id: string, data: any): Promise<any>;
 }

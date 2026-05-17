@@ -40,7 +40,7 @@ export class MediaProcessor extends WorkerHost {
       const waveformJson = JSON.stringify(waveformData);
 
       // 5. Actualizar registro en DB con todos los campos enterprise
-      await this.songsService.update(songId, {
+      await this.songsService.updateInternal(songId, {
         duration,
         audioUrl: hlsPath,
         waveform: waveformJson,

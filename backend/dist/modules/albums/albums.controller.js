@@ -14,8 +14,11 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AlbumsController = void 0;
 const common_1 = require("@nestjs/common");
+const platform_express_1 = require("@nestjs/platform-express");
 const albums_service_1 = require("./albums.service");
 const jwt_auth_guard_1 = require("../../auth/jwt-auth.guard");
+const multer_1 = require("multer");
+const path_1 = require("path");
 let AlbumsController = class AlbumsController {
     albumsService;
     constructor(albumsService) {
@@ -24,19 +27,30 @@ let AlbumsController = class AlbumsController {
     findAll(limit, offset) {
         return this.albumsService.findAll(Number(limit) || 20, Number(offset) || 0);
     }
+    findMy(req) {
+        return this.albumsService.findByArtist(req.user.userId);
+    }
     findOne(id) {
         return this.albumsService.findOne(id);
     }
     findByArtist(artistId) {
         return this.albumsService.findByArtist(artistId);
     }
-    create(req, body) {
+    create(req, body, file) {
         const artistId = req.user.userId;
-        return this.albumsService.create(artistId, body);
+        const data = { ...body };
+        if (file) {
+            data.coverUrl = `/uploads/covers/${file.filename}`;
+        }
+        return this.albumsService.create(artistId, data);
     }
-    update(id, req, body) {
+    update(id, req, body, file) {
         const artistId = req.user.userId;
-        return this.albumsService.update(id, artistId, body);
+        const data = { ...body };
+        if (file) {
+            data.coverUrl = `/uploads/covers/${file.filename}`;
+        }
+        return this.albumsService.update(id, artistId, data);
     }
     remove(id, req) {
         const artistId = req.user.userId;
@@ -57,6 +71,14 @@ __decorate([
     __metadata("design:returntype", void 0)
 ], AlbumsController.prototype, "findAll", null);
 __decorate([
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
+    (0, common_1.Get)('my'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", void 0)
+], AlbumsController.prototype, "findMy", null);
+__decorate([
     (0, common_1.Get)(':id'),
     __param(0, (0, common_1.Param)('id')),
     __metadata("design:type", Function),
@@ -73,20 +95,40 @@ __decorate([
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Post)(),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('cover', {
+        storage: (0, multer_1.diskStorage)({
+            destination: './uploads/covers',
+            filename: (req, file, cb) => {
+                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+                return cb(null, `${randomName}${(0, path_1.extname)(file.originalname)}`);
+            }
+        })
+    })),
     __param(0, (0, common_1.Request)()),
     __param(1, (0, common_1.Body)()),
+    __param(2, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Object]),
+    __metadata("design:paramtypes", [Object, Object, Object]),
     __metadata("design:returntype", void 0)
 ], AlbumsController.prototype, "create", null);
 __decorate([
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
     (0, common_1.Put)(':id'),
+    (0, common_1.UseInterceptors)((0, platform_express_1.FileInterceptor)('cover', {
+        storage: (0, multer_1.diskStorage)({
+            destination: './uploads/covers',
+            filename: (req, file, cb) => {
+                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
+                return cb(null, `${randomName}${(0, path_1.extname)(file.originalname)}`);
+            }
+        })
+    })),
     __param(0, (0, common_1.Param)('id')),
     __param(1, (0, common_1.Request)()),
     __param(2, (0, common_1.Body)()),
+    __param(3, (0, common_1.UploadedFile)()),
     __metadata("design:type", Function),
-    __metadata("design:paramtypes", [String, Object, Object]),
+    __metadata("design:paramtypes", [String, Object, Object, Object]),
     __metadata("design:returntype", void 0)
 ], AlbumsController.prototype, "update", null);
 __decorate([

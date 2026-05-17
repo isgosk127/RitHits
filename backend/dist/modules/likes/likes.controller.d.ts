@@ -17,4 +17,7 @@ export declare class LikesController {
     checkSong(songId: string, req: any): Promise<{
         liked: boolean;
     }>;
+    checkPlaylist(playlistId: string, req: any): Promise<{
+        liked: boolean;
+    }>;
 }

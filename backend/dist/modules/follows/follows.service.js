@@ -17,50 +17,6 @@ let FollowsService = class FollowsService {
     constructor(prisma) {
         this.prisma = prisma;
     }
-    async follow(followerId, followingId) {
-        if (followerId === followingId)
-            throw new common_1.ConflictException('Cannot follow yourself');
-        try {
-            return await this.prisma.follow.create({
-                data: { followerId, followingId },
-            });
-        }
-        catch {
-            throw new common_1.ConflictException('Already following');
-        }
-    }
-    async unfollow(followerId, followingId) {
-        return this.prisma.follow.delete({
-            where: { followerId_followingId: { followerId, followingId } },
-        });
-    }
-    async checkFollow(followerId, followingId) {
-        const follow = await this.prisma.follow.findUnique({
-            where: { followerId_followingId: { followerId, followingId } },
-        });
-        return { following: !!follow };
-    }
-    async getFollowers(userId) {
-        const followers = await this.prisma.follow.findMany({
-            where: { followingId: userId },
-            include: { follower: { select: { id: true, username: true, avatarUrl: true } } },
-        });
-        return followers.map((f) => f.follower);
-    }
-    async getFollowing(userId) {
-        const following = await this.prisma.follow.findMany({
-            where: { followerId: userId },
-            include: { following: { select: { id: true, username: true, avatarUrl: true, isArtist: true } } },
-        });
-        return following.map((f) => f.following);
-    }
-    async getStats(userId) {
-        const [followers, following] = await Promise.all([
-            this.prisma.follow.count({ where: { followingId: userId } }),
-            this.prisma.follow.count({ where: { followerId: userId } }),
-        ]);
-        return { followers, following };
-    }
 };
 exports.FollowsService = FollowsService;
 exports.FollowsService = FollowsService = __decorate([

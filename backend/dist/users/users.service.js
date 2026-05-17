@@ -29,6 +29,18 @@ let UsersService = class UsersService {
             select: {
                 id: true, username: true, email: true, avatarUrl: true, bannerUrl: true,
                 bio: true, isArtist: true, isVerified: true, role: true, createdAt: true,
+                songs: {
+                    where: { isPublic: true },
+                    take: 20,
+                    orderBy: { playCount: 'desc' },
+                    include: { artist: { select: { id: true, username: true, avatarUrl: true } } },
+                },
+                albums: {
+                    where: { isPublic: true },
+                    take: 12,
+                    orderBy: { releaseYear: 'desc' },
+                    include: { _count: { select: { songs: true } } },
+                },
                 _count: { select: { songs: true, albums: true, followers: true, following: true, playlists: true } },
             },
         });
