@@ -47,9 +47,22 @@ async function bootstrap() {
     app.use((0, helmet_1.default)({
         crossOriginResourcePolicy: false,
     }));
+    const allowedOrigins = [
+        'http://localhost:3000',
+        'https://project-nyxdj.vercel.app',
+        'https://rithits-58o1cg3bg-isgosk127-2503s-projects.vercel.app',
+        process.env.FRONTEND_URL,
+    ].filter(Boolean);
     app.enableCors({
-        origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
-        credentials: true
+        origin: (origin, callback) => {
+            if (!origin || allowedOrigins.includes(origin)) {
+                callback(null, true);
+            }
+            else {
+                callback(new Error(`CORS: Origin ${origin} not allowed`));
+            }
+        },
+        credentials: true,
     });
     app.useGlobalPipes(new common_1.ValidationPipe({
         whitelist: true,

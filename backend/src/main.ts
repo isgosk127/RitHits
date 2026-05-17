@@ -14,10 +14,23 @@ async function bootstrap() {
     crossOriginResourcePolicy: false, // Permite cargar imágenes/audio de este servidor
   }));
 
-  // CORS Enterprise
-  app.enableCors({ 
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000', 
-    credentials: true 
+  // CORS Enterprise - acepta múltiples orígenes de Vercel
+  const allowedOrigins = [
+    'http://localhost:3000',
+    'https://project-nyxdj.vercel.app',
+    'https://rithits-58o1cg3bg-isgosk127-2503s-projects.vercel.app',
+    process.env.FRONTEND_URL,
+  ].filter(Boolean) as string[];
+
+  app.enableCors({
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS: Origin ${origin} not allowed`));
+      }
+    },
+    credentials: true,
   });
 
   // Global Validation

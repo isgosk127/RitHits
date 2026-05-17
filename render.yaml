@@ -9,13 +9,29 @@ services:
     healthCheckPath: /
     envVars:
       - key: DATABASE_URL
-        sync: false
+        value: "postgresql://postgres.efwugnceepwylwdlzktw:Calaveroli127@aws-1-us-east-2.pooler.supabase.com:6543/postgres?pgbouncer=true"
+      - key: DIRECT_URL
+        value: "postgresql://postgres.efwugnceepwylwdlzktw:Calaveroli127@aws-1-us-east-2.pooler.supabase.com:5432/postgres"
       - key: JWT_SECRET
         generateValue: true
+      - key: PORT
+        value: "3002"
+      - key: FRONTEND_URL
+        value: "https://project-nyxdj.vercel.app"
       - key: REDIS_HOST
-        sync: false
+        value: "localhost"
+      - key: REDIS_PORT
+        value: "6379"
       - key: ELASTICSEARCH_NODE
-        sync: false
+        value: "http://localhost:9200"
+      - key: MINIO_ENDPOINT
+        value: "localhost"
+      - key: MINIO_PORT
+        value: "9000"
+      - key: MINIO_ACCESS_KEY
+        value: "admin"
+      - key: MINIO_SECRET_KEY
+        value: "password123"
     disk:
       name: uploads-disk
       mountPath: /app/uploads
